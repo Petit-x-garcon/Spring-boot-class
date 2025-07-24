@@ -1,8 +1,10 @@
 package com.sambat.demo.Service;
 
+import com.sambat.demo.Dto.Product.ProductResponseDto;
 import com.sambat.demo.Entity.ProductEntity;
+import com.sambat.demo.Mapper.ProductMapper;
 import com.sambat.demo.Model.BaseResponseModel;
-import com.sambat.demo.Model.ProductModel;
+import com.sambat.demo.Dto.Product.ProductDto;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,45 +20,42 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductMapper productMapper;
+
     public ResponseEntity<BaseDataResponseModel> getProducts(){
         List<ProductEntity> products = productRepository.findAll();
-        return ResponseEntity.ok(new BaseDataResponseModel("success", "All Products", products));
+        List<ProductResponseDto> productResponseDto = productMapper.productEntityToDtoList(products);
+        return ResponseEntity.ok(new BaseDataResponseModel("success", "All Products", productResponseDto));
     }
 
     public ResponseEntity<BaseDataResponseModel> getProductById(Long id){
         Optional<ProductEntity> productOpt = productRepository.findById(id);
 
         if(productOpt.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseDataResponseModel("fail", "product not found", List.of()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseDataResponseModel("fail", "product not found", null));
         }
 
-        ProductEntity product = productOpt.get();
-        return ResponseEntity.ok(new BaseDataResponseModel("success", "product found", product));
+        ProductResponseDto productResponseDto = productMapper.productEntityToDto(productOpt.get());
+        return ResponseEntity.ok(new BaseDataResponseModel("success", "product found", productResponseDto));
     }
 
-    public ResponseEntity<BaseResponseModel> addProduct(ProductModel payload){
-        ProductEntity product = new ProductEntity();
-
-        product.setProductName(payload.getName());
-        product.setDescription(payload.getDescription());
-        product.setPrice(payload.getPrice());
-        product.setCreatedAt(LocalDateTime.now());
-
+    public ResponseEntity<BaseResponseModel> addProduct(ProductDto payload){
+        if(productRepository.existsByProductName(payload.getName())){
+            return  ResponseEntity.status(HttpStatus.CONFLICT).body(new BaseResponseModel("fail", "product already exists"));
+        }
+        ProductEntity product = productMapper.productDtoToEntity(payload);
         productRepository.save(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(new BaseResponseModel("success", "product added"));
     }
 
-    public ResponseEntity<BaseResponseModel> updateProductById(Long id, ProductModel payload){
+    public ResponseEntity<BaseResponseModel> updateProductById(Long id, ProductDto payload){
         Optional<ProductEntity> productOpt = productRepository.findById(id);
         if(productOpt.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseResponseModel("fail", "product not found"));
         }
         ProductEntity product = productOpt.get();
-        product.setProductName(payload.getName());
-        product.setPrice(payload.getPrice());
-        product.setDescription(payload.getDescription());
-        product.setUpdatedAt(LocalDateTime.now());
-
+        productMapper.updateProductEntityFromDto(product, payload);
         productRepository.save(product);
         return ResponseEntity.ok(new BaseResponseModel("success", "product updated"));
     }
@@ -73,9 +71,9 @@ public class ProductService {
         return ResponseEntity.ok(new BaseResponseModel("success", "product deleted"));
     }
 
-    public ResponseEntity<BaseDataResponseModel> searchProduct(String name){
+    public ResponseEntity<BaseDataResponseModel> searchProduct(String name, Double minPrice, Double maxPrice){
         String nameCheck = name != null ? name.toLowerCase() : null;
-        ProductEntity product = productRepository.findByProductName(nameCheck);
+        List<ProductEntity> product = productRepository.findByProductName(nameCheck, minPrice, maxPrice);
         return ResponseEntity.status(HttpStatus.OK).body(new BaseDataResponseModel("success", "product found", product));
     }
 }

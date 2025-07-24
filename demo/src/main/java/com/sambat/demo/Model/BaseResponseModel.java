@@ -2,9 +2,8 @@ package com.sambat.demo.Model;
 
 import lombok.*;
 
-@Setter
-@Getter
-
+@Data
+@NoArgsConstructor
 public class BaseResponseModel {
     private String status;
     private String message;

@@ -1,7 +1,7 @@
 package com.sambat.demo.Controller;
 
 import com.sambat.demo.Model.BaseResponseModel;
-import com.sambat.demo.Model.ProductModel;
+import com.sambat.demo.Dto.Product.ProductDto;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +23,11 @@ public class ProductController {
         return productService.getProductById(id);
     }
     @PostMapping()
-    public ResponseEntity<BaseResponseModel> addProduct(@RequestBody ProductModel payload){
+    public ResponseEntity<BaseResponseModel> addProduct(@RequestBody ProductDto payload){
         return productService.addProduct(payload);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<BaseResponseModel> updateProductById(@PathVariable Long id, ProductModel payload){
+    public ResponseEntity<BaseResponseModel> updateProductById(@PathVariable Long id, ProductDto payload){
         return productService.updateProductById(id, payload);
     }
     @DeleteMapping("/{id}")
@@ -35,7 +35,10 @@ public class ProductController {
         return productService.deleteProductById(id);
     }
     @GetMapping("/search")
-    public ResponseEntity<BaseDataResponseModel> searchProduct(@RequestParam(value = "name") String name) {
-        return productService.searchProduct(name);
+    public ResponseEntity<BaseDataResponseModel> searchProduct(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "min", required = false) Double minPrice,
+            @RequestParam(value = "max", required = false) Double maxPrice) {
+        return productService.searchProduct(name, minPrice, maxPrice);
     }
 }

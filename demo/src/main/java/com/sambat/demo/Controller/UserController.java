@@ -2,8 +2,7 @@ package com.sambat.demo.Controller;
 
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
-import com.sambat.demo.Model.UserModel;
-import com.sambat.demo.Service.ProductService;
+import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<BaseResponseModel> addUser(@RequestBody UserModel payload) {
+    public ResponseEntity<BaseResponseModel> addUser(@RequestBody UserDto payload) {
         return userService.addUser(payload);
     }
 
@@ -37,12 +36,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseResponseModel> updateUserById(@PathVariable Long id, @RequestBody UserModel payload){
+    public ResponseEntity<BaseResponseModel> updateUserById(@PathVariable Long id, @RequestBody UserDto payload){
         return userService.updateUserById(id, payload);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<BaseDataResponseModel> searchUser(@RequestParam(value = "name") String name) {
+    public ResponseEntity<BaseDataResponseModel> searchUser(@RequestParam(value = "name", required = false) String name) {
         return userService.searchUser(name);
     }
 }
