@@ -2,6 +2,7 @@ package com.sambat.demo.Mapper;
 
 import com.sambat.demo.Dto.Stock.StockDto;
 import com.sambat.demo.Dto.Stock.StockResponseDto;
+import com.sambat.demo.Entity.ProductEntity;
 import com.sambat.demo.Entity.StockEntity;
 import com.sambat.demo.Model.BaseResponseModel;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ public class StockMapper {
         StockResponseDto stockResponseDto = new StockResponseDto();
 
         stockResponseDto.setId(stockEntity.getId());
-        stockResponseDto.setProductId(stockEntity.getProductId());
+        stockResponseDto.setProductId(stockEntity.getProduct().getId());
         stockResponseDto.setQuantity(stockEntity.getQuantity());
         stockResponseDto.setCreatedAt(stockEntity.getCreatedAt());
         stockResponseDto.setUpdatedAt(stockEntity.getUpdatedAt());
@@ -29,10 +30,10 @@ public class StockMapper {
         return stockEntities.stream().map(this::stockEntityToDto).collect(Collectors.toList());
     }
 
-    public StockEntity stockDtoToEntity(StockDto stockDto){
+    public StockEntity stockDtoToEntity(StockDto stockDto, ProductEntity product){
         StockEntity stockEntity = new StockEntity();
 
-        stockEntity.setProductId(stockDto.getProductId());
+        stockEntity.setProduct(product);
         stockEntity.setQuantity(stockDto.getQuantity());
 
         return stockEntity;

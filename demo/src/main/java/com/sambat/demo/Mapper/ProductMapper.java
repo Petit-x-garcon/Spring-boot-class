@@ -19,6 +19,7 @@ public class ProductMapper {
         productResponseDto.setId(productEntity.getId());
         productResponseDto.setName(productEntity.getProductName());
         productResponseDto.setDescription(productEntity.getDescription());
+        productResponseDto.setTotalStock(productEntity.getTotalStock());
         productResponseDto.setPrice(productEntity.getPrice());
         productResponseDto.setCreatedAt(productEntity.getCreatedAt());
         productResponseDto.setUpdatedAt(productEntity.getUpdatedAt());

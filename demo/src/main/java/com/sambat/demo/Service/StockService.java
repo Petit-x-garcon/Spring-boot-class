@@ -1,11 +1,13 @@
 package com.sambat.demo.Service;
 
 import com.sambat.demo.Dto.Stock.StockResponseDto;
+import com.sambat.demo.Entity.ProductEntity;
 import com.sambat.demo.Entity.StockEntity;
 import com.sambat.demo.Mapper.StockMapper;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
 import com.sambat.demo.Dto.Stock.StockDto;
+import com.sambat.demo.Repository.ProductRepository;
 import com.sambat.demo.Repository.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,9 @@ public class StockService {
 
     @Autowired
     private StockMapper stockMapper;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     public ResponseEntity<BaseDataResponseModel> getStock(){
         List<StockEntity> stock = stockRepository.findAll();
@@ -47,7 +52,11 @@ public class StockService {
     }
 
     public ResponseEntity<BaseResponseModel> addStock(StockDto payload) {
-        StockEntity stock = stockMapper.stockDtoToEntity(payload);
+        Optional<ProductEntity> stockOpt = productRepository.findById(payload.getProductId());
+        if(stockOpt.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponseModel("fail", "product not found"));
+        }
+        StockEntity stock = stockMapper.stockDtoToEntity(payload, stockOpt.get());
         stockRepository.save(stock);
         return ResponseEntity.status(HttpStatus.CREATED).body(new BaseResponseModel("success", "stock added"));
     }
