@@ -4,37 +4,34 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
-@Table(name = "stocks")
-public class StockEntity {
+@Table(name = "suppliers")
+public class SupplierEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long quantity;
-
+    private String name;
+    private String address;
+    private String rating;
+    private String email;
+    private String phone;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private ProductEntity product;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id")
-    private SupplierEntity supplier;
-
     @PreUpdate
-    public void preUpdate() {
+    public void preUpdate(){
         this.updatedAt = LocalDateTime.now();
     }
-
     @PrePersist
-    public void prePersist() {
+    public void prePersist(){
         this.createdAt = LocalDateTime.now();
     }
 
+    @OneToMany(mappedBy = "supplier", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<StockEntity> stocks;
 }
