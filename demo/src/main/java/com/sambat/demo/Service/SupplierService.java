@@ -8,6 +8,7 @@ import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
 import com.sambat.demo.Repository.SupplierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,6 +44,9 @@ public class SupplierService {
     }
 
     public ResponseEntity<BaseResponseModel> addSupplier(SupplierDto payload){
+        if(supplierRepository.existsByName(payload.getName())){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new BaseResponseModel("fail", "supplier alreadu exited" + payload.getName()));
+        }
         SupplierEntity supplierEntity = supplierMapper.supplierDtoToEntity(payload);
 
         supplierRepository.save(supplierEntity);
