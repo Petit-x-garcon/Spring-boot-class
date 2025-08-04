@@ -2,6 +2,8 @@ package com.sambat.demo.Service;
 
 import com.sambat.demo.Dto.User.UserResponseDto;
 import com.sambat.demo.Entity.UserEntity;
+import com.sambat.demo.Exception.Model.DuplicatedException;
+import com.sambat.demo.Exception.Model.NotFoundHandler;
 import com.sambat.demo.Mapper.UserMapper;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
@@ -34,19 +36,14 @@ public class UserService {
     }
 
     public ResponseEntity<BaseDataResponseModel> getUserById(Long id){
-        Optional<UserEntity> userOpt = userRepository.findById(id);
-
-        if(userOpt.isPresent()){
-            UserResponseDto userDto = userMapper.userEntityToDto(userOpt.get());
-            return ResponseEntity.ok(new BaseDataResponseModel("success", "user found", userDto));
-        }
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseDataResponseModel("error", "user not found", null));
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new NotFoundHandler("user not found " + id));
+        UserResponseDto userResponseDto = userMapper.userEntityToDto(user);
+        return ResponseEntity.ok(new BaseDataResponseModel("success", "user found", userResponseDto));
     }
 
     public ResponseEntity<BaseResponseModel> addUser(UserDto payload) {
         if (userRepository.existsByName(payload.getName()) || userRepository.existsByEmail(payload.getEmail())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new BaseResponseModel("fail", "user already exists"));
+            throw new DuplicatedException("username or email is exited");
         }
         UserEntity user = userMapper.userDtoToEntity(payload);
         userRepository.save(user);
@@ -57,24 +54,17 @@ public class UserService {
 
     public ResponseEntity<BaseResponseModel> deleteUserById(Long id){
         if(!userRepository.existsById(id)){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseResponseModel("fail", "user not found"));
+            throw new NotFoundHandler("user not found" + id);
         }
         userRepository.deleteById(id);
         return ResponseEntity.ok(new BaseResponseModel("success", "user deleted"));
     }
 
     public ResponseEntity<BaseResponseModel> updateUserById(Long id, UserDto payload){
-        Optional<UserEntity> userOpt = userRepository.findById(id);
-
-        if(userOpt.isPresent()){
-            UserEntity user = userOpt.get();
-            userMapper.updateUserEntityFromDto(user, payload);
-            userRepository.save(user);
-            return ResponseEntity.ok(new BaseResponseModel("success", "user updated"));
-        }
-        else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseResponseModel("error", "user not found"));
-        }
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new NotFoundHandler("user not found" + id));
+        userMapper.updateUserEntityFromDto(user, payload);
+        userRepository.save(user);
+        return ResponseEntity.ok(new BaseResponseModel("success", "user updated"));
     }
 
     public ResponseEntity<BaseDataResponseModel> searchUser(String name) {

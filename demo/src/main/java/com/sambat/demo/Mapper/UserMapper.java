@@ -14,11 +14,14 @@ public class UserMapper {
     public UserResponseDto userEntityToDto(UserEntity userEntity){
         UserResponseDto userResponseDto = new UserResponseDto();
 
+        userResponseDto.setId(userEntity.getId());
         userResponseDto.setName(userEntity.getName());
         userResponseDto.setAge(userEntity.getAge());
         userResponseDto.setAddress(userEntity.getAddress());
         userResponseDto.setRole(userEntity.getRole());
         userResponseDto.setEmail(userEntity.getEmail());
+        userResponseDto.setCreatedAt(userEntity.getCreatedAt());
+        userResponseDto.setUpdatedAt(userEntity.getUpdatedAt());
 
         return userResponseDto;
     }
