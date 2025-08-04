@@ -3,6 +3,8 @@ package com.sambat.demo.Service;
 import com.sambat.demo.Dto.Supplier.SupplierDto;
 import com.sambat.demo.Dto.Supplier.SupplierResponseDto;
 import com.sambat.demo.Entity.SupplierEntity;
+import com.sambat.demo.Exception.Model.DuplicatedException;
+import com.sambat.demo.Exception.Model.NotFoundHandler;
 import com.sambat.demo.Mapper.SupplierMapper;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
@@ -33,19 +35,15 @@ public class SupplierService {
     }
 
     public ResponseEntity<BaseDataResponseModel> getSupplierById(Long id){
-        Optional<SupplierEntity> supplierOpt = supplierRepository.findById(id);
+        SupplierEntity supplierOpt = supplierRepository.findById(id).orElseThrow(()-> new NotFoundHandler("supplier not found" + id));
 
-        if(supplierOpt.isEmpty()){
-            return ResponseEntity.status(404).body(new BaseDataResponseModel("fail", "supplier not found", null));
-        }
-
-        SupplierResponseDto supplierResponseDto = supplierMapper.supplierEntityToDto(supplierOpt.get());
+        SupplierResponseDto supplierResponseDto = supplierMapper.supplierEntityToDto(supplierOpt);
         return ResponseEntity.ok(new BaseDataResponseModel("success", "supplier found", supplierResponseDto));
     }
 
     public ResponseEntity<BaseResponseModel> addSupplier(SupplierDto payload){
         if(supplierRepository.existsByName(payload.getName())){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new BaseResponseModel("fail", "supplier alreadu exited" + payload.getName()));
+            throw new DuplicatedException("supplier already existed");
         }
         SupplierEntity supplierEntity = supplierMapper.supplierDtoToEntity(payload);
 
@@ -55,12 +53,8 @@ public class SupplierService {
     }
 
     public ResponseEntity<BaseResponseModel> updateSupplierById(Long id, SupplierDto payload){
-        Optional<SupplierEntity> supplierOpt = supplierRepository.findById(id);
+        SupplierEntity supplier = supplierRepository.findById(id).orElseThrow(() -> new NotFoundHandler("supplier not found " + id));
 
-        if(supplierOpt.isEmpty()){
-            return ResponseEntity.status(404).body(new BaseResponseModel("fail", "supplier not found"));
-        }
-        SupplierEntity supplier = supplierOpt.get();
         supplierMapper.updateSupplierEntityFromDto(supplier, payload);
         supplierRepository.save(supplier);
 
@@ -68,11 +62,10 @@ public class SupplierService {
     }
 
     public ResponseEntity<BaseResponseModel> deleteSupplierById(Long id){
-        Optional<SupplierEntity> supplierOpt = supplierRepository.findById(id);
-        if(supplierOpt.isEmpty()){
-            return ResponseEntity.status(404).body(new BaseResponseModel("fail", "supplier not found"));
+        if(!supplierRepository.existsById(id)){
+           throw new NotFoundHandler("supplier not found " + id);
         }
-        supplierRepository.delete(supplierOpt.get());
+        supplierRepository.deleteById(id);
         return ResponseEntity.ok(new BaseResponseModel("success", "supplier deleted"));
     }
 }
