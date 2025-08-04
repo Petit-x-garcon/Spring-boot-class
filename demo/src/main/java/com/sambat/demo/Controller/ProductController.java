@@ -27,7 +27,7 @@ public class ProductController {
         return productService.addProduct(payload);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<BaseResponseModel> updateProductById(@PathVariable Long id, ProductDto payload){
+    public ResponseEntity<BaseResponseModel> updateProductById(@PathVariable Long id, @RequestBody ProductDto payload){
         return productService.updateProductById(id, payload);
     }
     @DeleteMapping("/{id}")

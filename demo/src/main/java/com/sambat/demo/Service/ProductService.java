@@ -2,6 +2,8 @@ package com.sambat.demo.Service;
 
 import com.sambat.demo.Dto.Product.ProductResponseDto;
 import com.sambat.demo.Entity.ProductEntity;
+import com.sambat.demo.Exception.Model.DuplicatedException;
+import com.sambat.demo.Exception.Model.NotFoundHandler;
 import com.sambat.demo.Mapper.ProductMapper;
 import com.sambat.demo.Model.BaseResponseModel;
 import com.sambat.demo.Dto.Product.ProductDto;
@@ -30,19 +32,15 @@ public class ProductService {
     }
 
     public ResponseEntity<BaseDataResponseModel> getProductById(Long id){
-        Optional<ProductEntity> productOpt = productRepository.findById(id);
+        ProductEntity productOpt = productRepository.findById(id).orElseThrow(() -> new NotFoundHandler("not found with id " + id));
 
-        if(productOpt.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseDataResponseModel("fail", "product not found", null));
-        }
-
-        ProductResponseDto productResponseDto = productMapper.productEntityToDto(productOpt.get());
+        ProductResponseDto productResponseDto = productMapper.productEntityToDto(productOpt);
         return ResponseEntity.ok(new BaseDataResponseModel("success", "product found", productResponseDto));
     }
 
     public ResponseEntity<BaseResponseModel> addProduct(ProductDto payload){
         if(productRepository.existsByProductName(payload.getName())){
-            return  ResponseEntity.status(HttpStatus.CONFLICT).body(new BaseResponseModel("fail", "product already exists"));
+            throw new DuplicatedException("product with this name is already existed");
         }
         ProductEntity product = productMapper.productDtoToEntity(payload);
         productRepository.save(product);
@@ -50,21 +48,16 @@ public class ProductService {
     }
 
     public ResponseEntity<BaseResponseModel> updateProductById(Long id, ProductDto payload){
-        Optional<ProductEntity> productOpt = productRepository.findById(id);
-        if(productOpt.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseResponseModel("fail", "product not found"));
-        }
-        ProductEntity product = productOpt.get();
+        ProductEntity product = productRepository.findById(id).orElseThrow(() -> new NotFoundHandler("not found with id " + id));
+
         productMapper.updateProductEntityFromDto(product, payload);
         productRepository.save(product);
         return ResponseEntity.ok(new BaseResponseModel("success", "product updated"));
     }
 
     public ResponseEntity<BaseResponseModel> deleteProductById(Long id) {
-        Optional<ProductEntity> productOpt = productRepository.findById(id);
-
-        if(productOpt.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseResponseModel("fail", "product not found"));
+        if(!productRepository.existsById(id)){
+            throw new NotFoundHandler("not found by id " + id);
         }
 
         productRepository.deleteById(id);
