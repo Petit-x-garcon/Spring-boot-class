@@ -35,7 +35,7 @@ public class StockController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<BaseResponseModel> updateStock(@PathVariable Long id, @RequestBody Long quantity, @RequestParam Integer type){
+    public ResponseEntity<BaseResponseModel> updateStock(@PathVariable Long id, @RequestBody Long quantity, @RequestParam(required = true) Integer type){
         return stockService.updateStock(id, quantity, type);
     }
 }

@@ -3,6 +3,7 @@ package com.sambat.demo.Service;
 import com.sambat.demo.Dto.Stock.StockResponseDto;
 import com.sambat.demo.Entity.ProductEntity;
 import com.sambat.demo.Entity.StockEntity;
+import com.sambat.demo.Exception.Model.NotFoundHandler;
 import com.sambat.demo.Mapper.StockMapper;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
@@ -36,27 +37,24 @@ public class StockService {
     }
 
     public ResponseEntity<BaseDataResponseModel> getStockById(Long id) {
-        Optional<StockEntity> existStock = stockRepository.findById(id);
-        return existStock.map(stockDto -> {
-            StockResponseDto stockResponseDto = stockMapper.stockEntityToDto(stockDto);
-            return ResponseEntity.ok(new BaseDataResponseModel("success", "stock found", stockResponseDto));
-        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseDataResponseModel("fail", "stock not found!", null)));
+        StockEntity existStock = stockRepository.findById(id).orElseThrow(() -> new NotFoundHandler("not found id " + id));
+        StockResponseDto stockResponseDto = stockMapper.stockEntityToDto(existStock);
+
+        return ResponseEntity.ok(new BaseDataResponseModel("success", "product found", stockResponseDto));
     }
 
     public ResponseEntity<BaseResponseModel> deleteStock(Long id){
-        Optional<StockEntity> existStock = stockRepository.findById(id);
-        return existStock.map(stockEntity -> {
-            stockRepository.delete(stockEntity);
-            return ResponseEntity.ok(new BaseResponseModel("success", "stock deleted"));
-        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseResponseModel("fail", "stock not found")));
+        if(!stockRepository.existsById(id)){
+            throw new NotFoundHandler("stock doesn't exist" + id);
+        }
+        stockRepository.deleteById(id);
+        return ResponseEntity.ok(new BaseResponseModel("success", "product deleted"));
     }
 
     public ResponseEntity<BaseResponseModel> addStock(StockDto payload) {
-        Optional<ProductEntity> stockOpt = productRepository.findById(payload.getProductId());
-        if(stockOpt.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponseModel("fail", "product not found"));
-        }
-        StockEntity stock = stockMapper.stockDtoToEntity(payload, stockOpt.get());
+        ProductEntity stockOpt = productRepository.findById(payload.getProductId()).orElseThrow(() -> new NotFoundHandler("product not found"));
+
+        StockEntity stock = stockMapper.stockDtoToEntity(payload, stockOpt);
         stockRepository.save(stock);
         return ResponseEntity.status(HttpStatus.CREATED).body(new BaseResponseModel("success", "stock added"));
     }
@@ -66,16 +64,13 @@ public class StockService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponseModel("fail", "type must be 1 or 2"));
         }
 
-        Optional<StockEntity> existStock = stockRepository.findById(id);
-        if(existStock.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseResponseModel("fail", "stock not found"));
-        }
+        StockEntity existStock = stockRepository.findById(id).orElseThrow(() -> new NotFoundHandler("stock not found"));
 
-        boolean status = stockMapper.updateStockEntityFromDto(existStock.get(), quantity, type);
+        boolean status = stockMapper.updateStockEntityFromDto(existStock, quantity, type);
         if(!status){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponseModel("fail", "quantity must be greater than 0"));
         }
-        stockRepository.save(existStock.get());
+        stockRepository.save(existStock);
         return ResponseEntity.ok(new BaseResponseModel("success", "stock updated"));
     }
 }

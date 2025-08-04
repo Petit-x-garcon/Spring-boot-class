@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @JsonPropertyOrder({"id", "product_id", "quantity", "created_at", "updated_at"})
 public class StockResponseDto {
     private Long id;
+    @JsonProperty("product_id")
     private Long productId;
     private Long quantity;
     @JsonProperty("created_At")
