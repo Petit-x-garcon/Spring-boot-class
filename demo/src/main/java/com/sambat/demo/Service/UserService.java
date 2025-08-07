@@ -1,5 +1,7 @@
 package com.sambat.demo.Service;
 
+import com.sambat.demo.Dto.User.ChangePasswordDto;
+import com.sambat.demo.Dto.User.UpdateUserDto;
 import com.sambat.demo.Dto.User.UserResponseDto;
 import com.sambat.demo.Entity.UserEntity;
 import com.sambat.demo.Exception.Model.DuplicatedException;
@@ -60,7 +62,7 @@ public class UserService {
         return ResponseEntity.ok(new BaseResponseModel("success", "user deleted"));
     }
 
-    public ResponseEntity<BaseResponseModel> updateUserById(Long id, UserDto payload){
+    public ResponseEntity<BaseResponseModel> updateUserById(Long id, UpdateUserDto payload){
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new NotFoundHandler("user not found" + id));
         userMapper.updateUserEntityFromDto(user, payload);
         userRepository.save(user);
@@ -71,5 +73,18 @@ public class UserService {
         String nameCheck = name != null ? name.toLowerCase() : null;
         List<UserEntity> user = userRepository.findByUserName(nameCheck);
         return ResponseEntity.status(HttpStatus.OK).body(new BaseDataResponseModel("success", "user found", user));
+    }
+
+    public ResponseEntity<BaseResponseModel> changePassword(Long id, ChangePasswordDto password){
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new NotFoundHandler("user not found"));
+
+        if(Objects.equals(user.getPassword(), password.getPassword())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponseModel("fail", "password is the old password"));
+        }
+
+        userMapper.changePassword(user, password);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new BaseResponseModel("success", "password change successfully"));
     }
 }

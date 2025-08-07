@@ -1,5 +1,7 @@
 package com.sambat.demo.Controller;
 
+import com.sambat.demo.Dto.User.ChangePasswordDto;
+import com.sambat.demo.Dto.User.UpdateUserDto;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
 import com.sambat.demo.Dto.User.UserDto;
@@ -37,12 +39,17 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseResponseModel> updateUserById(@PathVariable Long id,@Valid @RequestBody UserDto payload){
+    public ResponseEntity<BaseResponseModel> updateUserById(@PathVariable Long id, @Valid @RequestBody UpdateUserDto payload){
         return userService.updateUserById(id, payload);
     }
 
     @GetMapping("/search")
     public ResponseEntity<BaseDataResponseModel> searchUser(@RequestParam(value = "name", required = false) String name) {
         return userService.searchUser(name);
+    }
+
+    @PatchMapping("/{id}/change-password")
+    public ResponseEntity<BaseResponseModel> changePassword(@PathVariable Long id,@Valid @RequestBody ChangePasswordDto password){
+        return userService.changePassword(id, password);
     }
 }

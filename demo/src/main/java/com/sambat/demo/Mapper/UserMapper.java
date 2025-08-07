@@ -1,11 +1,14 @@
 package com.sambat.demo.Mapper;
 
+import com.sambat.demo.Dto.User.ChangePasswordDto;
+import com.sambat.demo.Dto.User.UpdateUserDto;
 import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Dto.User.UserResponseDto;
 import com.sambat.demo.Entity.UserEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -18,6 +21,7 @@ public class UserMapper {
         userResponseDto.setName(userEntity.getName());
         userResponseDto.setAge(userEntity.getAge());
         userResponseDto.setAddress(userEntity.getAddress());
+        userResponseDto.setPassword(userEntity.getPassword());
         userResponseDto.setRole(userEntity.getRole());
         userResponseDto.setEmail(userEntity.getEmail());
         userResponseDto.setCreatedAt(userEntity.getCreatedAt());
@@ -43,13 +47,15 @@ public class UserMapper {
         return userEntity;
     }
 
-    public void updateUserEntityFromDto(UserEntity userEntity, UserDto userDto){
-
+    public void updateUserEntityFromDto(UserEntity userEntity, UpdateUserDto userDto){
         userEntity.setName(userDto.getName());
         userEntity.setAge(userDto.getAge());
         userEntity.setAddress(userDto.getAddress());
         userEntity.setRole(userDto.getRole());
         userEntity.setEmail(userDto.getEmail());
-        userEntity.setPassword(userDto.getPassword());
+    }
+
+    public void changePassword(UserEntity user, ChangePasswordDto password){
+        user.setPassword(password.getPassword());
     }
 }

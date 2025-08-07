@@ -2,22 +2,20 @@ package com.sambat.demo.Dto.User;
 
 import com.sambat.demo.Common.Annotations.ValidEnum;
 import com.sambat.demo.Common.Enums.Role;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserDto {
+public class UpdateUserDto {
     @NotBlank(message = "name must be provided")
     @Size(min = 5, max = 50, message = "must between 5 and 50")
     private String name;
 
     @Min(value = 12, message = "user must be above 12 years old")
     private Integer age;
-
-    @NotBlank(message = "password must not empty")
-    @Size(min = 4, max = 20, message = "size must be between 4 and 20")
-    private String password;
 
     @Size(max = 255, message = "character must not exceed 255")
     private String address;
