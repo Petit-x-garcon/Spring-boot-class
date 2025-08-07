@@ -4,6 +4,7 @@ import com.sambat.demo.Model.BaseResponseModel;
 import com.sambat.demo.Dto.Product.ProductDto;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class ProductController {
         return productService.getProductById(id);
     }
     @PostMapping()
-    public ResponseEntity<BaseResponseModel> addProduct(@RequestBody ProductDto payload){
+    public ResponseEntity<BaseResponseModel> addProduct(@Valid @RequestBody ProductDto payload){
         return productService.addProduct(payload);
     }
     @PutMapping("/{id}")
