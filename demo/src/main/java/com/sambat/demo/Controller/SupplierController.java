@@ -4,6 +4,7 @@ import com.sambat.demo.Dto.Supplier.SupplierDto;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
 import com.sambat.demo.Service.SupplierService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +26,12 @@ public class SupplierController {
     }
 
     @PostMapping()
-    public ResponseEntity<BaseResponseModel> addSupplier(@RequestBody SupplierDto payload){
+    public ResponseEntity<BaseResponseModel> addSupplier(@Valid @RequestBody SupplierDto payload){
         return supplierService.addSupplier(payload);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseResponseModel> updateSupplierById(@PathVariable Long id, @RequestBody SupplierDto payload){
+    public ResponseEntity<BaseResponseModel> updateSupplierById(@PathVariable Long id,@Valid @RequestBody SupplierDto payload){
         return supplierService.updateSupplierById(id, payload);
     }
 
