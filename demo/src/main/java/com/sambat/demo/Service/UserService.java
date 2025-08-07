@@ -28,7 +28,7 @@ public class UserService {
 
     public ResponseEntity<BaseDataResponseModel> getUsers(){
         List<UserEntity> users = userRepository.findAll();
-        if(users == null || users.isEmpty()){
+        if(users.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseDataResponseModel("fail", "No Users Found", null));
         }
 
