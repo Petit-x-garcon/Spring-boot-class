@@ -4,6 +4,7 @@ import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
 import com.sambat.demo.Dto.Stock.StockDto;
 import com.sambat.demo.Service.StockService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class StockController {
     }
 
     @PostMapping()
-    public ResponseEntity<BaseResponseModel> addStock(@RequestBody StockDto payload){
+    public ResponseEntity<BaseResponseModel> addStock(@Valid @RequestBody StockDto payload){
         return stockService.addStock(payload);
     }
 
