@@ -4,6 +4,7 @@ import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
 import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<BaseResponseModel> addUser(@RequestBody UserDto payload) {
+    public ResponseEntity<BaseResponseModel> addUser(@Valid @RequestBody UserDto payload) {
         return userService.addUser(payload);
     }
 
@@ -36,7 +37,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseResponseModel> updateUserById(@PathVariable Long id, @RequestBody UserDto payload){
+    public ResponseEntity<BaseResponseModel> updateUserById(@PathVariable Long id,@Valid @RequestBody UserDto payload){
         return userService.updateUserById(id, payload);
     }
 
