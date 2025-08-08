@@ -55,7 +55,7 @@ public class UserMapper {
         userEntity.setEmail(userDto.getEmail());
     }
 
-    public void changePassword(UserEntity user, ChangePasswordDto password){
-        user.setPassword(password.getPassword());
+    public void changePassword(UserEntity user, String pass){
+        user.setPassword(pass);
     }
 }

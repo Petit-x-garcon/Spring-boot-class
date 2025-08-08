@@ -75,14 +75,18 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.OK).body(new BaseDataResponseModel("success", "user found", user));
     }
 
-    public ResponseEntity<BaseResponseModel> changePassword(Long id, ChangePasswordDto password){
+    public ResponseEntity<BaseResponseModel> changePassword(Long id, ChangePasswordDto payload){
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new NotFoundHandler("user not found"));
 
-        if(Objects.equals(user.getPassword(), password.getPassword())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponseModel("fail", "password is the old password"));
+        if(!Objects.equals(user.getPassword(), payload.getOldPassword())){
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new BaseResponseModel("fail", "old pass not correct"));
         }
 
-        userMapper.changePassword(user, password);
+        if(!Objects.equals(payload.getNewPassword(), payload.getConfirmPassword())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponseModel("fail", "new and comfirm pass not the same"));
+        }
+
+        userMapper.changePassword(user, payload.getNewPassword());
         userRepository.save(user);
 
         return ResponseEntity.ok(new BaseResponseModel("success", "password change successfully"));
