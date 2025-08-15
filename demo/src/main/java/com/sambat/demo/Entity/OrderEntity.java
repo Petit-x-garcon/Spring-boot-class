@@ -28,5 +28,13 @@ public class OrderEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItemEntity> orderItems;
 
+    @PrePersist
+    private void createdAt(){
+        this.createdAt = LocalDateTime.now();
+    }
 
+    @PreUpdate
+    private void updatedAt(){
+        this.updatedAt = LocalDateTime.now();
+    }
 }

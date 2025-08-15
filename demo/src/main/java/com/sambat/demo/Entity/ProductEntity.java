@@ -1,13 +1,19 @@
 package com.sambat.demo.Entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.servlet.annotation.HandlesTypes;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = {"stocks"})
+@EqualsAndHashCode(exclude = {"stocks"})
 @Table(name = "products")
 public class ProductEntity {
     @Id
