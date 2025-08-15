@@ -3,6 +3,7 @@ package com.sambat.demo.Mapper;
 import com.sambat.demo.Dto.Order.OrderDto;
 import com.sambat.demo.Dto.Order.OrderItemResponseDto;
 import com.sambat.demo.Dto.Order.OrderResponseDto;
+import com.sambat.demo.Dto.Order.OrderUpdateDto;
 import com.sambat.demo.Entity.OrderEntity;
 import com.sambat.demo.Entity.OrderItemEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,7 @@ public class OrderMapper {
 
             orderResponseDto.setItems(orderItemResponseDtos);
 
-            Double total = orderItemResponseDtos.stream().mapToDouble(item ->
-                    item.getPurchaseAmount() * item.getUnitPrice()).sum();
+            Double total = this.calculateTotalPrice(orderItemResponseDtos);
 
             orderResponseDto.setTotal(total);
         }
@@ -56,4 +56,16 @@ public class OrderMapper {
     public List<OrderResponseDto> toOrderDtoList(List<OrderEntity> entities){
         return entities.stream().map(this::toOrderDto).toList();
     }
+
+    public void updateOrder(OrderEntity entity, OrderUpdateDto payload){
+        if(entity == null || payload == null) return;
+
+        entity.setStatus(payload.getStatus());
+    }
+
+    private Double calculateTotalPrice(List<OrderItemResponseDto> orderItem){
+        return orderItem.stream().mapToDouble(item ->
+                item.getPurchaseAmount() * item.getUnitPrice()).sum();
+    }
+
 }

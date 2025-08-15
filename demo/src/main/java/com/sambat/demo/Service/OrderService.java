@@ -3,8 +3,11 @@ package com.sambat.demo.Service;
 import com.sambat.demo.Dto.Order.OrderDto;
 import com.sambat.demo.Dto.Order.OrderItemDto;
 import com.sambat.demo.Dto.Order.OrderResponseDto;
+import com.sambat.demo.Dto.Order.OrderUpdateDto;
 import com.sambat.demo.Entity.OrderEntity;
 import com.sambat.demo.Entity.StockEntity;
+import com.sambat.demo.Exception.Model.NotFoundHandler;
+import com.sambat.demo.Exception.Model.UnprocessEntityException;
 import com.sambat.demo.Mapper.OrderMapper;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
@@ -35,6 +38,24 @@ public class OrderService {
          List<OrderResponseDto> orderResponseDtos = orderMapper.toOrderDtoList(orderEntities);
 
         return ResponseEntity.ok(new BaseDataResponseModel("success", "here is  all your order", orderResponseDtos));
+    }
+
+    public ResponseEntity<BaseResponseModel> updateOrder(Long id, OrderUpdateDto payload){
+        OrderEntity entity = orderRespository.findById(id).orElseThrow(() -> new NotFoundHandler("order not found"));
+
+        orderMapper.updateOrder(entity, payload);
+        orderRespository.save(entity);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new BaseResponseModel("success", "order deleted"));
+    }
+
+    public ResponseEntity<BaseResponseModel> deleteOrder(Long id){
+        if(!orderRespository.existsById(id)){
+            throw new NotFoundHandler("order doesn't exist");
+        }
+        orderRespository.deleteById(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new BaseResponseModel("success", "order deleted"));
     }
 
     @Transactional
@@ -69,7 +90,7 @@ public class OrderService {
                 }
             }
             if(toDeduct > 0){
-                throw new RuntimeException("not enough stock for id" + id);
+                throw new UnprocessEntityException("not enough stock for id" + id);
             }
         }
 
