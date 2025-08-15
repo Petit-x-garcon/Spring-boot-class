@@ -2,6 +2,7 @@ package com.sambat.demo.Exception;
 
 import com.sambat.demo.Exception.Model.DuplicatedException;
 import com.sambat.demo.Exception.Model.NotFoundHandler;
+import com.sambat.demo.Exception.Model.UnprocessEntityException;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundHandler.class)
     public ResponseEntity<BaseResponseModel> handleNotFound(NotFoundHandler nf){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseResponseModel("fail", nf.getMessage()));
+    }
+
+    @ExceptionHandler(UnprocessEntityException.class)
+    public ResponseEntity<BaseResponseModel> handleUnprocessEntityException(UnprocessEntityException ex){
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new BaseResponseModel("fail", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
