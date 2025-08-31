@@ -32,7 +32,8 @@ public class ProductService {
     }
 
     public ResponseEntity<BaseDataResponseModel> getProductById(Long id){
-        ProductEntity productOpt = productRepository.findById(id).orElseThrow(() -> new NotFoundHandler("not found with id " + id));
+        ProductEntity productOpt = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundHandler("not found with id " + id));
 
         ProductResponseDto productResponseDto = productMapper.productEntityToDto(productOpt);
         return ResponseEntity.ok(new BaseDataResponseModel("success", "product found", productResponseDto));
