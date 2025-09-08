@@ -38,14 +38,14 @@ public class OrderController {
                 .body(Response.success("200", "success", "all orders", orderResponseDtos));
     }
 
-    @PatchMapping("{/id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Response> updateOrder(@PathVariable Long id, @Valid @RequestBody OrderUpdateDto payload){
         orderService.updateOrder(id, payload);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.success("success", "updated data"));
     }
 
-    @DeleteMapping("{/id}")
+    @DeleteMapping("/{id}")
     public  ResponseEntity<Response> deleteOrder(@PathVariable Long id){
         orderService.deleteOrder(id);
         return ResponseEntity.status(HttpStatus.OK)
