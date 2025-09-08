@@ -11,20 +11,27 @@ import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
 import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Repository.UserRepository;
+import com.sambat.demo.Service.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public ResponseEntity<BaseDataResponseModel> getUsers(){
         List<UserEntity> users = userRepository.findAll();
@@ -39,6 +46,10 @@ public class UserService {
 
     public ResponseEntity<BaseDataResponseModel> getUserById(Long id){
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new NotFoundHandler("user not found " + id));
+
+        String token = jwtUtil.generateToken(user);
+        System.out.println("token: " + token);
+
         UserResponseDto userResponseDto = userMapper.userEntityToDto(user);
         return ResponseEntity.ok(new BaseDataResponseModel("success", "user found", userResponseDto));
     }
@@ -90,5 +101,13 @@ public class UserService {
         userRepository.save(user);
 
         return ResponseEntity.ok(new BaseResponseModel("success", "password change successfully"));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByName(username)
+                .orElseThrow(() -> {
+                    throw new UsernameNotFoundException("user not found: " + username);
+                });
     }
 }
