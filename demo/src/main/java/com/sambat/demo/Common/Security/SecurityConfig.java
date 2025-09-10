@@ -1,5 +1,6 @@
 package com.sambat.demo.Common.Security;
 
+import com.sambat.demo.Common.Filter.JwtAuthenticationFilter;
 import com.sambat.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,12 +14,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtAuthenticationFilter authFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -46,7 +50,9 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest()
                         .authenticated()
-        );
+        )
+                .authenticationManager(this.authenticationManager(http))
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
