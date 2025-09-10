@@ -4,12 +4,10 @@ import com.sambat.demo.Dto.User.ChangePasswordDto;
 import com.sambat.demo.Dto.User.UpdateUserDto;
 import com.sambat.demo.Dto.User.UserResponseDto;
 import com.sambat.demo.Entity.UserEntity;
-import com.sambat.demo.Exception.Model.DuplicatedException;
 import com.sambat.demo.Exception.Model.NotFoundHandler;
 import com.sambat.demo.Mapper.UserMapper;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Model.BaseResponseModel;
-import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Repository.UserRepository;
 import com.sambat.demo.Service.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,23 +45,14 @@ public class UserService implements UserDetailsService {
     public ResponseEntity<BaseDataResponseModel> getUserById(Long id){
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new NotFoundHandler("user not found " + id));
 
-        String token = jwtUtil.generateToken(user);
-        System.out.println("token: " + token);
+//        String token = jwtUtil.generateToken(user);
+//        System.out.println("token: " + token);
 
         UserResponseDto userResponseDto = userMapper.userEntityToDto(user);
         return ResponseEntity.ok(new BaseDataResponseModel("success", "user found", userResponseDto));
     }
 
-    public ResponseEntity<BaseResponseModel> addUser(UserDto payload) {
-        if (userRepository.existsByName(payload.getName()) || userRepository.existsByEmail(payload.getEmail())){
-            throw new DuplicatedException("username or email is exited");
-        }
-        UserEntity user = userMapper.userDtoToEntity(payload);
-        userRepository.save(user);
 
-        BaseResponseModel response = new BaseResponseModel("success", "User added");
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
 
     public ResponseEntity<BaseResponseModel> deleteUserById(Long id){
         if(!userRepository.existsById(id)){

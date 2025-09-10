@@ -28,10 +28,6 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @PostMapping()
-    public ResponseEntity<BaseResponseModel> addUser(@Valid @RequestBody UserDto payload) {
-        return userService.addUser(payload);
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseResponseModel> deleteUserById(@PathVariable("id") Long id){
