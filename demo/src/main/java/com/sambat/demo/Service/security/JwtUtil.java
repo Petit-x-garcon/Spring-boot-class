@@ -32,7 +32,7 @@ public class JwtUtil {
     }
 
     private String createToken(Map<String, Object> claims, String subject){
-        System.out.println("Key: " + this.getSignInKey());
+//        System.out.println("Key: " + this.getSignInKey());
 
         return Jwts.builder()
                 .setClaims(claims)
