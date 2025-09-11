@@ -3,6 +3,7 @@ package com.sambat.demo.Service.security;
 import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Dto.auth.AuthDto;
 import com.sambat.demo.Dto.auth.AuthResponseDto;
+import com.sambat.demo.Entity.RefreshTokenEntity;
 import com.sambat.demo.Entity.UserEntity;
 import com.sambat.demo.Exception.Model.DuplicatedException;
 import com.sambat.demo.Mapper.UserMapper;
@@ -29,6 +30,8 @@ public class AuthService {
     private AuthenticationManager authManager;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RefreshTokenService refreshTokenService;
 
     public AuthResponseDto register(UserDto payload){
         if(userRepository.existsByName(payload.getName())){
@@ -41,10 +44,13 @@ public class AuthService {
         UserEntity user = userMapper.userDtoToEntity(payload);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        UserEntity createduser = userRepository.save(user);
-        String token = jwtUtil.generateToken(createduser);
+        UserEntity createdUser = userRepository.save(user);
+        String accessToken = jwtUtil.generateToken(createdUser);
 
-        return new AuthResponseDto(token, null);
+        RefreshTokenEntity refreshTokenEntity = refreshTokenService.createRefreshToken(createdUser);
+        String refreshToken = refreshTokenEntity.getToken();
+
+        return new AuthResponseDto(accessToken, refreshToken);
     }
 
     public AuthResponseDto login(AuthDto payload){
@@ -55,6 +61,9 @@ public class AuthService {
         UserDetails userDetails = userService.loadUserByUsername(payload.getUsername());
         String token = jwtUtil.generateToken(userDetails);
 
-        return new AuthResponseDto(token, null);
+        UserEntity userEntity = (UserEntity) userDetails;
+        RefreshTokenEntity refreshToken = refreshTokenService.createRefreshToken(userEntity);
+
+        return new AuthResponseDto(token, refreshToken.getToken());
     }
 }
