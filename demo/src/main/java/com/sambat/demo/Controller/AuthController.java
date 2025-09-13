@@ -4,6 +4,7 @@ import com.sambat.demo.Dto.Base.Response;
 import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Dto.auth.AuthDto;
 import com.sambat.demo.Dto.auth.AuthResponseDto;
+import com.sambat.demo.Dto.refresh.RefreshTokenDto;
 import com.sambat.demo.Service.security.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,5 +37,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.success("200","success",
                         "successfully logged in", authDto));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Response> refeshToken(@Valid @RequestBody RefreshTokenDto payload){
+        AuthResponseDto auth =  authService.refreshToken(payload);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.success("201", "success",
+                        "successfully created new token", auth));
     }
 }

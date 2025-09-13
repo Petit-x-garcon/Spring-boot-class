@@ -3,9 +3,11 @@ package com.sambat.demo.Service.security;
 import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Dto.auth.AuthDto;
 import com.sambat.demo.Dto.auth.AuthResponseDto;
+import com.sambat.demo.Dto.refresh.RefreshTokenDto;
 import com.sambat.demo.Entity.RefreshTokenEntity;
 import com.sambat.demo.Entity.UserEntity;
 import com.sambat.demo.Exception.Model.DuplicatedException;
+import com.sambat.demo.Exception.Model.UnprocessEntityException;
 import com.sambat.demo.Mapper.UserMapper;
 import com.sambat.demo.Repository.UserRepository;
 import com.sambat.demo.Service.UserService;
@@ -65,5 +67,20 @@ public class AuthService {
         RefreshTokenEntity refreshToken = refreshTokenService.createRefreshToken(userEntity);
 
         return new AuthResponseDto(token, refreshToken.getToken());
+    }
+
+    public AuthResponseDto refreshToken(RefreshTokenDto payload){
+        RefreshTokenEntity token = refreshTokenService.getToken(payload.getRefreshToken());
+
+        if(!token.isValidate()){
+            throw new UnprocessEntityException("token already revoke or expired");
+        }
+
+        UserEntity user = token.getUser();
+        String accessToken = jwtUtil.generateToken(user);
+
+        RefreshTokenEntity refreshToken = refreshTokenService.rotateToken(token, user);
+
+        return new AuthResponseDto(accessToken, refreshToken.getToken());
     }
 }
