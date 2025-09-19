@@ -1,5 +1,6 @@
 package com.sambat.demo.Exception;
 
+import com.sambat.demo.Exception.Model.CustomAuthenticationException;
 import com.sambat.demo.Exception.Model.DuplicatedException;
 import com.sambat.demo.Exception.Model.NotFoundHandler;
 import com.sambat.demo.Exception.Model.UnprocessEntityException;
@@ -31,6 +32,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnprocessEntityException.class)
     public ResponseEntity<BaseResponseModel> handleUnprocessEntityException(UnprocessEntityException ex){
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new BaseResponseModel("fail", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CustomAuthenticationException.class)
+    public ResponseEntity<BaseResponseModel> handleAuthenticationException(CustomAuthenticationException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new BaseResponseModel("fail", ex.getMessage()));
     }
 

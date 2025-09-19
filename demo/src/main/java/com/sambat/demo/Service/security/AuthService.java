@@ -6,6 +6,7 @@ import com.sambat.demo.Dto.auth.AuthResponseDto;
 import com.sambat.demo.Dto.auth.RefreshTokenDto;
 import com.sambat.demo.Entity.RefreshTokenEntity;
 import com.sambat.demo.Entity.UserEntity;
+import com.sambat.demo.Exception.Model.CustomAuthenticationException;
 import com.sambat.demo.Exception.Model.DuplicatedException;
 import com.sambat.demo.Exception.Model.UnprocessEntityException;
 import com.sambat.demo.Mapper.UserMapper;
@@ -13,6 +14,7 @@ import com.sambat.demo.Repository.UserRepository;
 import com.sambat.demo.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,9 +58,13 @@ public class AuthService {
     }
 
     public AuthResponseDto login(AuthDto payload){
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(payload.getUsername(), payload.getPassword())
-        );
+        try{
+            authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(payload.getUsername(), payload.getPassword())
+            );
+        } catch (BadCredentialsException e){
+            throw new CustomAuthenticationException("invalid username or password");
+        }
 
         UserDetails userDetails = userService.loadUserByUsername(payload.getUsername());
         String token = jwtUtil.generateToken(userDetails);
@@ -73,13 +79,13 @@ public class AuthService {
         RefreshTokenEntity token = refreshTokenService.getToken(payload.getRefreshToken());
 
         if(!token.isValidate()){
-            throw new UnprocessEntityException("token already revoke or expired");
+            throw new CustomAuthenticationException("token already revoke or expired");
         }
 
         UserEntity user = token.getUser();
         String accessToken = jwtUtil.generateToken(user);
 
-        RefreshTokenEntity refreshToken = refreshTokenService.rotateToken(token, user);
+        RefreshTokenEntity refreshToken = refreshTokenService.rotateToken(token);
 
         return new AuthResponseDto(accessToken, refreshToken.getToken());
     }

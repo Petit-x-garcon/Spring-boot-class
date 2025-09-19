@@ -49,8 +49,8 @@ public class RefreshTokenService {
                 .orElseThrow(() -> new NotFoundHandler("token doesn't exist."));
     }
 
-    public RefreshTokenEntity rotateToken(RefreshTokenEntity token, UserEntity user){
+    public RefreshTokenEntity rotateToken(RefreshTokenEntity token){
         token.setRevoked(true);
-        return this.createRefreshToken(user);
+        return this.createRefreshToken(token.getUser());
     }
 }
