@@ -23,6 +23,10 @@ public class SecurityConfig {
     private UserService userService;
     @Autowired
     private JwtAuthenticationFilter authFilter;
+    @Autowired
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    @Autowired
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -45,13 +49,18 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz ->
-                authz.
-                        requestMatchers("api/v1/auth/**")
+                authz
+                        .requestMatchers("api/v1/users").hasRole("admin")
+                        .requestMatchers("api/v1/auth/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
         )
                 .authenticationManager(this.authenticationManager(http))
+                .exceptionHandling(exceptions -> exceptions
+                                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
