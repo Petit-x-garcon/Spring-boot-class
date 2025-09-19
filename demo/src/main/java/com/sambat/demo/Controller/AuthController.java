@@ -4,7 +4,7 @@ import com.sambat.demo.Dto.Base.Response;
 import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Dto.auth.AuthDto;
 import com.sambat.demo.Dto.auth.AuthResponseDto;
-import com.sambat.demo.Dto.refresh.RefreshTokenDto;
+import com.sambat.demo.Dto.auth.RefreshTokenDto;
 import com.sambat.demo.Service.security.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Response> login(@RequestBody AuthDto payload){
+    public ResponseEntity<Response> login(@Valid @RequestBody AuthDto payload){
         AuthResponseDto authDto = authService.login(payload);
 
         return ResponseEntity.status(HttpStatus.OK)

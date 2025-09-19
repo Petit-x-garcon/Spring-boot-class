@@ -3,7 +3,7 @@ package com.sambat.demo.Service.security;
 import com.sambat.demo.Dto.User.UserDto;
 import com.sambat.demo.Dto.auth.AuthDto;
 import com.sambat.demo.Dto.auth.AuthResponseDto;
-import com.sambat.demo.Dto.refresh.RefreshTokenDto;
+import com.sambat.demo.Dto.auth.RefreshTokenDto;
 import com.sambat.demo.Entity.RefreshTokenEntity;
 import com.sambat.demo.Entity.UserEntity;
 import com.sambat.demo.Exception.Model.DuplicatedException;

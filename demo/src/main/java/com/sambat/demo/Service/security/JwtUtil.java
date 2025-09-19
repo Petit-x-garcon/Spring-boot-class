@@ -1,9 +1,12 @@
 package com.sambat.demo.Service.security;
 
+import com.sambat.demo.Common.config.ApplicationConfiguration;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -16,12 +19,17 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
+    @Autowired
+    private ApplicationConfiguration appConfig;
 
-    @Value("${config.security.secret}")
     private String secret;
-
-    @Value("${config.security.expiration}")
     private long expiration;
+
+    @PostConstruct
+    private void init(){
+        this.expiration = appConfig.getSecurity().getExpiration();
+        this.secret = appConfig.getSecurity().getSecret();
+    }
 
     private Key getSignInKey(){
         return Keys.hmacShaKeyFor(this.secret.getBytes());

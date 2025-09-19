@@ -1,4 +1,4 @@
-package com.sambat.demo.Dto.refresh;
+package com.sambat.demo.Dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
