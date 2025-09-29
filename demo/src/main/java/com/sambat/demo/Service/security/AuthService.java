@@ -8,7 +8,6 @@ import com.sambat.demo.Entity.RefreshTokenEntity;
 import com.sambat.demo.Entity.UserEntity;
 import com.sambat.demo.Exception.Model.CustomAuthenticationException;
 import com.sambat.demo.Exception.Model.DuplicatedException;
-import com.sambat.demo.Exception.Model.UnprocessEntityException;
 import com.sambat.demo.Mapper.UserMapper;
 import com.sambat.demo.Repository.UserRepository;
 import com.sambat.demo.Service.UserService;

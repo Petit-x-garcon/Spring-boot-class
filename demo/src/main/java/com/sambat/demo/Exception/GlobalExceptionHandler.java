@@ -1,11 +1,10 @@
 package com.sambat.demo.Exception;
 
+import com.sambat.demo.Dto.Base.Response;
 import com.sambat.demo.Exception.Model.CustomAuthenticationException;
 import com.sambat.demo.Exception.Model.DuplicatedException;
 import com.sambat.demo.Exception.Model.NotFoundHandler;
 import com.sambat.demo.Exception.Model.UnprocessEntityException;
-import com.sambat.demo.Model.BaseDataResponseModel;
-import com.sambat.demo.Model.BaseResponseModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -20,34 +19,37 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicatedException.class)
-    public ResponseEntity<BaseResponseModel> handleDuplicated(DuplicatedException du){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new BaseResponseModel("fail", du.getMessage()));
+    public ResponseEntity<Response> handleDuplicated(DuplicatedException du){
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Response.error("409", "conflict", du.getMessage()));
     }
 
     @ExceptionHandler(NotFoundHandler.class)
-    public ResponseEntity<BaseResponseModel> handleNotFound(NotFoundHandler nf){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new BaseResponseModel("fail", nf.getMessage()));
+    public ResponseEntity<Response> handleNotFound(NotFoundHandler nf){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Response.error("404", "not found", nf.getMessage()));
     }
 
     @ExceptionHandler(UnprocessEntityException.class)
-    public ResponseEntity<BaseResponseModel> handleUnprocessEntityException(UnprocessEntityException ex){
+    public ResponseEntity<Response> handleUnprocessEntityException(UnprocessEntityException ex){
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(new BaseResponseModel("fail", ex.getMessage()));
+                .body(Response.error("422", "unprocessable", ex.getMessage()));
     }
 
     @ExceptionHandler(CustomAuthenticationException.class)
-    public ResponseEntity<BaseResponseModel> handleAuthenticationException(CustomAuthenticationException ex){
+    public ResponseEntity<Response> handleAuthenticationException(CustomAuthenticationException ex){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new BaseResponseModel("fail", ex.getMessage()));
+                .body(Response.error("401", "unauthorized", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseResponseModel> handleGenernalException(Exception ex){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new BaseResponseModel("fail", "internal server error " + ex.getMessage()));
+    public ResponseEntity<Response> handleGenernalException(Exception ex){
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Response.error("500", "internal error", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<BaseDataResponseModel> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Response> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -57,6 +59,7 @@ public class GlobalExceptionHandler {
             errors.put(field, message);
         });
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseDataResponseModel("fail", "validation fail", errors));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Response.error("400", "invalid", ex.getMessage(), errors));
     }
 }
