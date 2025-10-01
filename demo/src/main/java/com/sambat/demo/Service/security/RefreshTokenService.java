@@ -53,4 +53,8 @@ public class RefreshTokenService {
         token.setRevoked(true);
         return this.createRefreshToken(token.getUser());
     }
+
+    public void deleteToken(){
+        refreshTokenRepository.deleteExpiredAndRevokedTokens(LocalDateTime.now());
+    }
 }
