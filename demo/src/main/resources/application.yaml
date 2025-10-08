@@ -13,9 +13,25 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: MyVerySecurePassword
+  cache:
+    type: redis
+
 config:
   security:
     secret: 388c81c79cada4abd82f6cd6a1b76de8eb0c156009f98137e4c41064430eabdd
-#    expiration: 3600000
-    expiration: 30000
+    expiration: 3600000
+#    expiration: 30000
     refresh-token-expiration: 3
+  pagination:
+    base-url: http://localhost:8080/api/v1
+    uri:
+      product: /products/paginated
+      stock: /stocks/paginated
+      supplier: /suppliers/paginated
+      user: /users/paginated
+      order: /orders/paginated
