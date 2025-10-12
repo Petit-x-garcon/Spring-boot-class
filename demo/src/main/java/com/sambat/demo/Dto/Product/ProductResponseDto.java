@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @JsonPropertyOrder({"id", "name", "description", "price", "created_at", "updated_at"})
-public class ProductResponseDto {
+public class ProductResponseDto implements Serializable {
     private Long id;
     private String name;
     private String description;

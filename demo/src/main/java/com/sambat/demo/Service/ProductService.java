@@ -12,6 +12,7 @@ import com.sambat.demo.Dto.Product.ProductDto;
 import com.sambat.demo.Model.BaseDataResponseModel;
 import com.sambat.demo.Repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ public class ProductService {
     @Autowired
     private ApplicationConfiguration appConfig;
 
+
     public PaginationResponse<ProductResponseDto> listProductPageable(Pageable pageable){
         Page<ProductEntity> products = productRepository.findAll(pageable);
         Page<ProductResponseDto> responseDtos = products.map(product
@@ -37,10 +39,10 @@ public class ProductService {
         return PaginationResponse.from(responseDtos, appConfig.getPagination().buildUrl("product"));
     }
 
-    public ResponseEntity<BaseDataResponseModel> getProducts(){
+    @Cacheable(value = "products", key = "'all'")
+    public List<ProductResponseDto> getProducts(){
         List<ProductEntity> products = productRepository.findAll();
-        List<ProductResponseDto> productResponseDto = productMapper.productEntityToDtoList(products);
-        return ResponseEntity.ok(new BaseDataResponseModel("success", "All Products", productResponseDto));
+        return productMapper.productEntityToDtoList(products);
     }
 
     public ResponseEntity<BaseDataResponseModel> getProductById(Long id){

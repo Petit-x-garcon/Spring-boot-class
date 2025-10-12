@@ -13,8 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/products")
@@ -31,8 +34,10 @@ public class ProductController {
     }
 
     @GetMapping()
-    public ResponseEntity<BaseDataResponseModel> getProducts(){
-        return productService.getProducts();
+    public ResponseEntity<Response> getProducts(){
+        List<ProductResponseDto> responseDtos = productService.getProducts();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.success("200", "success", "all products", responseDtos));
     }
     @GetMapping("/{id}")
     public ResponseEntity<BaseDataResponseModel> getProductById(@PathVariable Long id) {
