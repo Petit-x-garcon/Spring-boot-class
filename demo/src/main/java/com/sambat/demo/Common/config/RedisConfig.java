@@ -16,6 +16,8 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class RedisConfig {
@@ -30,8 +32,23 @@ public class RedisConfig {
 
         GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
-        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(30))
+        RedisCacheConfiguration defaultConfig = this.getCacheConfiguration(30, jsonSerializer);
+        RedisCacheConfiguration paginatedConfig = this.getCacheConfiguration(5, jsonSerializer);
+
+        Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
+        configMap.put("products-paginated", paginatedConfig);
+
+        return RedisCacheManager.builder(redisConnectionFactory)
+                .cacheDefaults(defaultConfig)
+                .withInitialCacheConfigurations(configMap)
+                .build();
+    }
+
+    private RedisCacheConfiguration getCacheConfiguration(Integer duration,
+                                                          GenericJackson2JsonRedisSerializer jsonSerializer){
+        return RedisCacheConfiguration
+                .defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(duration))
                 .computePrefixWith(cacheName -> cacheName + ":")
                 .serializeKeysWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())
@@ -40,9 +57,5 @@ public class RedisConfig {
                         RedisSerializationContext.SerializationPair.fromSerializer(jsonSerializer)
                 )
                 .disableCachingNullValues();
-
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(defaultConfig)
-                .build();
     }
 }

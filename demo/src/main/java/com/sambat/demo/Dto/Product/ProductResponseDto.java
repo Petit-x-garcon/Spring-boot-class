@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @JsonPropertyOrder({"id", "name", "description", "price", "created_at", "updated_at"})
-public class ProductResponseDto implements Serializable {
+public class ProductResponseDto {
     private Long id;
     private String name;
     private String description;
