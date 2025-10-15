@@ -32,8 +32,8 @@ public class ProductService {
     private ApplicationConfiguration appConfig;
 
 
-    @Cacheable(value = "products-paginated", key = "T(String).valueOf(#pageable.getPageNumber()).concat('-')" +
-            ".concat(T(String).valueOf(#pageable.getPageSize()))")
+    @Cacheable(value = "products-paginated", key = "T(com.sambat.demo.Common.util.CacheKeyGenerator)" +
+            ".generatePaginationKey('products', #pegeable)")
     public PaginationResponse<ProductResponseDto> listProductPageable(Pageable pageable){
         Page<ProductEntity> products = productRepository.findAll(pageable);
         Page<ProductResponseDto> responseDtos = products.map(product
