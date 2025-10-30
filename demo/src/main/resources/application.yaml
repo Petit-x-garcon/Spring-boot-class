@@ -35,3 +35,8 @@ config:
       supplier: /suppliers/paginated
       user: /users/paginated
       order: /orders/paginated
+  json-placeholder:
+    base-url: https://jsonplaceholder.typicode.com
+    uri:
+      posts: posts
+      comments: /comments

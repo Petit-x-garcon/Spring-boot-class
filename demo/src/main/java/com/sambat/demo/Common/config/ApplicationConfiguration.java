@@ -14,6 +14,7 @@ import java.util.Map;
 public class ApplicationConfiguration {
     private SecurityProperties security;
     private Pagination pagination;
+    private JsonPlaceholder jsonPlaceholder;
 
     @Getter
     @Setter
@@ -31,6 +32,17 @@ public class ApplicationConfiguration {
 
         public String buildUrl(String resource){
             return baseUrl + uri.getOrDefault(resource, "");
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class JsonPlaceholder{
+        private String baseUrl;
+        private Map<String, String> uri;
+
+        public String getComment(){
+            return uri.get("comments");
         }
     }
 }
