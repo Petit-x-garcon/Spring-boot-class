@@ -1,22 +1,26 @@
-#version: '3.8'
+#version: "3.8"
 
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
     container_name: spring-postgres
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: demo-production
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      # For local dev: expose DB to host. For production, remove this line.
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - spring-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d demo-production"]
+      # Use shell so $VARS expand inside the container
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,15 +29,19 @@ services:
   redis:
     image: redis:7-alpine
     container_name: spring-redis
-    command: redis-server --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    env_file:
+      - .env
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     ports:
-      - "6379:6379"
+      # For local dev: expose Redis to host. For production, remove this line.
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
     networks:
       - spring-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      # Use shell so the password expands
+      test: ["CMD-SHELL", "redis-cli -a \"$REDIS_PASSWORD\" PING | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -44,18 +52,26 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: spring-boot-app
+    env_file:
+      - .env
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DATABASE_URL: jdbc:postgresql://postgres:5432/demo-production
-      DATABASE_USERNAME: admin
-      DATABASE_PASSWORD: admin
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
-      REDIS_DATABASE: 0
-      JWT_SECRET: 388c81c79cada4abd82f6cd6a1b76de8eb0c156009f98137e4c41064430eabdd
-      JWT_EXPIRATION: 3600000
-      JWT_REFRESH_TOKEN_EXPIRATION: 3
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      # DB
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      # Redis
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DATABASE: ${REDIS_DB}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION}
+      # Optional: Telegram
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
     ports:
       - "8080:8080"
     depends_on:
