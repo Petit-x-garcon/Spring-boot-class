@@ -53,7 +53,24 @@ public class WebClientWrapper {
         return webClient
                 .post()
                 .uri(url)
+                .bodyValue(payload)
                 .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, this::handleErrorResponse)
+                .bodyToMono(clazz)
+                .timeout(Duration.ofMillis(5000))
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(1))
+                        .filter(throwable -> throwable instanceof WebClientResponseException
+                                && ((WebClientResponseException) throwable).getStatusCode().is5xxServerError()
+                        ))
+                .block();
+    }
+
+    public <T> void postTelegramMessage(String url, Object payload, Class<T> clazz){
+        webClient.post()
+                .uri(url)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(payload)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, this::handleErrorResponse)
                 .bodyToMono(clazz)
