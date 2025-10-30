@@ -13,7 +13,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Aspect
-@Component
+//@Component
 @Slf4j
 @Order(2)
 public class LoggingAspect {
