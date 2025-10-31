@@ -53,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("api/v1/users").hasRole("admin")
                         .requestMatchers("api/v1/auth/**").permitAll()
                         .requestMatchers("actuator/**").permitAll()
+                        .requestMatchers("api/v1/mock/**").permitAll()
                         .anyRequest()
                         .authenticated()
         )
